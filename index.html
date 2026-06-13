@@ -207,57 +207,43 @@ function calculateAll(){
 
  document.getElementById("calculationDetails").innerHTML=details;
 }
+function submitUserInfo() {
 
-function submitUserInfo(){
+    const name = document.getElementById("studentName").value.trim();
+    const roll = document.getElementById("rollNo").value.trim();
 
-const name =
-document.getElementById("studentName").value;
+    if (!name || !roll) {
+        alert("Please enter Name and Roll Number");
+        return;
+    }
 
-const roll =
-document.getElementById("rollNo").value;
+    const formData =
+        "entry.1413824670=" + encodeURIComponent(name) +
+        "&entry.426239352=" + encodeURIComponent(roll);
 
-if(!name || !roll){
-alert("Please fill all fields");
-return;
+    fetch(
+        "https://docs.google.com/forms/d/e/1FAIpQLSd49sPrCYt26v5Khj1ZCvPrg_3YKujUUq3HoRj-3M5uQKcvjg/formResponse",
+        {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+        }
+    );
+
+    localStorage.setItem("auraverse-user", "submitted");
+
+    document.getElementById("userPopup").style.display = "none";
 }
+window.addEventListener("load", () => {
 
-fetch(
-"https://docs.google.com/forms/d/e/1FAIpQLSd49sPrCYt26v5Khj1ZCvPrg_3YKujUUq3HoRj-3M5uQKcvjg/formResponse",
-{
-method:"POST",
-mode:"no-cors",
-headers:{
-"Content-Type":
-"application/x-www-form-urlencoded"
-},
-body:
-`entry.143824670=${encodeURIComponent(name)}
-&entry.426239352=${encodeURIComponent(roll)}`
-}
-);
+    if (localStorage.getItem("auraverse-user")) {
+        document.getElementById("userPopup").style.display = "none";
+    }
 
-document.getElementById("userPopup")
-.style.display="none";
-
-localStorage.setItem(
-"auraverse-user",
-"submitted"
-);
-
-}
-window.onload = () => {
-
-if(
-localStorage.getItem(
-"auraverse-user"
-)
-){
-document.getElementById(
-"userPopup"
-).style.display="none";
-}
-
-};
+});
 </script>
 </body>
 </html>
