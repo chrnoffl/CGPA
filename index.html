@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REC GPA & CGPA Calculator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif}
+body{background:#f4f7fb;padding:20px}
+.container{max-width:1200px;margin:auto}
+.header{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:25px;border-radius:20px;text-align:center;margin-bottom:20px}
+.semester,.card{background:#fff;padding:20px;border-radius:16px;margin-bottom:15px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.semester h2,.card h2{color:#2563eb;margin-bottom:12px}
+.subject{display:grid;grid-template-columns:1fr 150px;gap:10px;margin:8px 0}
+select{padding:8px;border-radius:8px;border:1px solid #ddd}
+.gpa{margin-top:10px;font-weight:bold;color:#16a34a}
+.summary{background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;padding:25px;border-radius:20px;text-align:center;margin-bottom:15px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ddd;padding:8px;text-align:center}
+th{background:#eef4ff}
+@media(max-width:700px){.subject{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>REC GPA & CGPA Calculator</h1>
+<p>B.E Computer Science and Design (R2019)</p>
+</div>
+
+<div id="semesterContainer"></div>
+
+<div class="summary">
+<h2>Overall CGPA</h2>
+<p style="font-size:1.4rem">CGPA: <span id="cgpa">0.00</span></p>
+</div>
+
+<div class="card">
+<h2>How Your GPA & CGPA Were Calculated</h2>
+<div id="calculationDetails">
+Select grades to see the calculation breakdown.
+</div>
+</div>
+
+<div class="card">
+<h2>Grade Point Reference</h2>
+<table>
+<tr><th>Grade</th><th>Point</th></tr>
+<tr><td>O</td><td>10</td></tr>
+<tr><td>A+</td><td>9</td></tr>
+<tr><td>A</td><td>8</td></tr>
+<tr><td>B+</td><td>7</td></tr>
+<tr><td>B</td><td>6</td></tr>
+<tr><td>C</td><td>5</td></tr>
+<tr><td>U</td><td>0</td></tr>
+</table>
+</div>
+</div>
+
+<script>
+const gradeOptions=`
+<option value="">Select Grade</option>
+<option value="10">O</option>
+<option value="9">A+</option>
+<option value="8">A</option>
+<option value="7">B+</option>
+<option value="6">B</option>
+<option value="5">C</option>
+<option value="0">U</option>`;
+
+const semesters={
+1:[["Technical English",3],["Linear Algebra and Calculus",4],["Design Drawing and Visualization",4],["Programming Using C",4],["Physics for Information Science",4],["Engineering Practices - EEE",1]],
+2:[["Transforms and PDE",4],["Visual Design and Communication",3],["Basic Electrical and Electronics Engineering",4],["Principles of Digital Electronics",4],["Data Structures",5],["Engineering Practices - Civil & Mechanical",1],["Heritage of Tamils",1]],
+3:[["Discrete Mathematics",4],["Life Science for Engineers",3],["Computer Design",3],["Software Engineering",4],["Design Processes & Perspectives",4],["Object Oriented Programming",5],["Tamils and Technology",1]],
+4:[["Probability and Statistics",4],["Strategic Design Management",3],["Operating Systems",5],["Design and Analysis of Algorithms",4],["Human Computer Interaction",3],["Python Programming for Design",2],["Soft Skills I",1]],
+5:[["Theory of Computation",3],["Fundamentals of Image Processing",3],["Database Management Systems",5],["Computer Networks",5],["Animation & Graphics",4],["Elements of Automation",3],["Soft Skills II",1]],
+6:[["Fundamentals of Artificial Intelligence",3],["NPTEL",3],["Game Design and Development",4],["Data Visualization",4],["Web Essentials",4],["Mobile Application Design Lab",1],["Mini Project",2],["Problem Solving Techniques",1]],
+7:[["Immersive Experience in AR/VR",3],["Digital Media Entrepreneurship",3],["NPTEL",3],["Fundamentals of Video for Engineers",3],["Introduction to 3D Animation",1],["3D Printing and Design",5],["Project I",3]],
+8:[["Professional Elective VI",3],["Open Elective II",3],["Project II",6]]
+};
+
+const container=document.getElementById("semesterContainer");
+
+Object.entries(semesters).forEach(([sem,subjects])=>{
+ let html=`<div class="semester" id="sem${sem}"><h2>Semester ${sem}</h2>`;
+ subjects.forEach(s=>{
+ html+=`<div class="subject">
+ <div>${s[0]} (${s[1]} Credits)</div>
+ <select data-credit="${s[1]}" onchange="calculateAll()">${gradeOptions}</select>
+ </div>`;
+ });
+ html+=`<div class="gpa">GPA: <span id="gpa${sem}">0.00</span></div></div>`;
+ container.innerHTML+=html;
+});
+
+function calculateAll(){
+ let totalCredits=0,totalPoints=0;
+ let details="";
+
+ Object.keys(semesters).forEach(sem=>{
+   const selects=document.querySelectorAll(`#sem${sem} select`);
+   let semCredits=0, semPoints=0;
+
+   selects.forEach(sel=>{
+      if(sel.value==="") return;
+      const c=parseFloat(sel.dataset.credit);
+      const g=parseFloat(sel.value);
+      semCredits+=c;
+      semPoints+=c*g;
+   });
+
+   const gpa=semCredits>0?semPoints/semCredits:0;
+   document.getElementById(`gpa${sem}`).innerText=gpa.toFixed(2);
+
+   if(semCredits>0){
+      details += `
+      <hr style="margin:15px 0">
+      <h3>Semester ${sem}</h3>
+      <p>Total Grade Points: <b>${semPoints.toFixed(2)}</b></p>
+      <p>Total Credits: <b>${semCredits}</b></p>
+      <p>GPA = ${semPoints.toFixed(2)} ÷ ${semCredits} = <b>${gpa.toFixed(2)}</b></p>
+      `;
+
+      totalCredits+=semCredits;
+      totalPoints+=semPoints;
+   }
+ });
+
+ const cgpa=totalCredits>0?totalPoints/totalCredits:0;
+ document.getElementById("cgpa").innerText=cgpa.toFixed(2);
+
+ details += `
+ <hr style="margin:20px 0">
+ <h3>Overall CGPA Calculation</h3>
+ <p>Total Grade Points Earned: <b>${totalPoints.toFixed(2)}</b></p>
+ <p>Total Credits Earned: <b>${totalCredits}</b></p>
+ <p>CGPA = ${totalPoints.toFixed(2)} ÷ ${totalCredits} = <b>${cgpa.toFixed(2)}</b></p>
+ `;
+
+ document.getElementById("calculationDetails").innerHTML=details;
+}
+</script>
+</body>
+</html>
