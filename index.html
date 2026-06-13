@@ -20,10 +20,76 @@ select{padding:8px;border-radius:8px;border:1px solid #ddd}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ddd;padding:8px;text-align:center}
 th{background:#eef4ff}
+.popup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.6);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.popup-content{
+background:white;
+padding:30px;
+border-radius:20px;
+width:350px;
+text-align:center;
+}
+
+.popup-content input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ddd;
+border-radius:10px;
+}
+
+.popup-content button{
+width:100%;
+padding:12px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:10px;
+cursor:pointer;
+}
 @media(max-width:700px){.subject{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div id="userPopup" class="popup">
+
+<div class="popup-content">
+
+<h2>Welcome</h2>
+
+<p>
+Please enter your details before using
+the GPA Calculator.
+</p>
+
+<input
+type="text"
+id="studentName"
+placeholder="Name">
+
+<input
+type="text"
+id="rollNo"
+placeholder="Roll Number">
+
+<button onclick="submitUserInfo()">
+Continue
+</button>
+
+</div>
+
+</div>
 <div class="container">
 <div class="header">
 <h1>REC GPA & CGPA Calculator</h1>
@@ -141,16 +207,57 @@ function calculateAll(){
 
  document.getElementById("calculationDetails").innerHTML=details;
 }
+
+function submitUserInfo(){
+
+const name =
+document.getElementById("studentName").value;
+
+const roll =
+document.getElementById("rollNo").value;
+
+if(!name || !roll){
+alert("Please fill all fields");
+return;
+}
+
+fetch(
+"https://docs.google.com/forms/d/e/1FAIpQLSd49sPrCYt26v5Khj1ZCvPrg_3YKujUUq3HoRj-3M5uQKcvjg/formResponse",
+{
+method:"POST",
+mode:"no-cors",
+headers:{
+"Content-Type":
+"application/x-www-form-urlencoded"
+},
+body:
+`entry.143824670=${encodeURIComponent(name)}
+&entry.426239352=${encodeURIComponent(roll)}`
+}
+);
+
+document.getElementById("userPopup")
+.style.display="none";
+
+localStorage.setItem(
+"auraverse-user",
+"submitted"
+);
+
+}
+window.onload = () => {
+
+if(
+localStorage.getItem(
+"auraverse-user"
+)
+){
+document.getElementById(
+"userPopup"
+).style.display="none";
+}
+
+};
 </script>
-<footer style="
-text-align:center;
-margin-top:30px;
-padding:15px;
-color:#94a3b8;
-font-size:13px;
-">
-Powered by Auraverse
-</footer>
 </body>
- 
 </html>
